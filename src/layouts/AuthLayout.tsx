@@ -1,10 +1,12 @@
-import React, { JSX, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 
-function AuthLayout(): JSX.Element {
+interface AuthLayoutProps {}
+
+const AuthLayout: React.FC<AuthLayoutProps> = () => {
   const { checkAuth, isAuthenticated } = useAuthStore();
   const { darkMode } = useThemeStore();
   const navigate = useNavigate();
@@ -29,6 +31,6 @@ function AuthLayout(): JSX.Element {
       </main>
     </div>
   );
-}
+};
 
 export default AuthLayout;

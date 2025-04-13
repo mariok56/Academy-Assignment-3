@@ -1,4 +1,4 @@
-import React, { JSX } from 'react'
+import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/login'
 import AuthLayout from './layouts/AuthLayout'
@@ -6,7 +6,9 @@ import UserGrid from './components/UserGrid'
 import { useThemeStore } from './store/themeStore'
 import './App.css'
 
-function App(): JSX.Element {
+interface AppProps {}
+
+const App: React.FC<AppProps> = () => {
   const { darkMode } = useThemeStore();
   
   return (

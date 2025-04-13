@@ -1,12 +1,17 @@
-import React, { JSX } from 'react';
+import React, { useCallback } from 'react';
 import { User } from '../types/User';
 
 interface UserCardProps {
   user: User;
   darkMode: boolean;
+  onDelete: (userId: number) => void;
 }
 
-function UserCard({ user, darkMode }: UserCardProps): JSX.Element {
+const UserCard: React.FC<UserCardProps> = React.memo(({ user, darkMode, onDelete }) => {
+  const handleDelete = useCallback(() => {
+    onDelete(user.id);
+  }, [user.id, onDelete]);
+
   return (
     <div className={`rounded-lg shadow-md overflow-hidden ${darkMode ? 'bg-gray-800' : 'bg-white'} p-6 flex flex-col`}>
       {/* Circle with initials */}
@@ -29,12 +34,17 @@ function UserCard({ user, darkMode }: UserCardProps): JSX.Element {
         <button className="bg-primary text-white py-2 px-4 rounded hover:bg-primary-dark transition">
           Edit
         </button>
-        <button className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition">
+        <button 
+          onClick={handleDelete}
+          className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition"
+        >
           Delete
         </button>
       </div>
     </div>
   );
-}
+});
+
+UserCard.displayName = 'UserCard';
 
 export default UserCard;

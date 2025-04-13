@@ -1,9 +1,11 @@
-import React, { JSX } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 
-function Navbar(): JSX.Element {
+interface NavbarProps {}
+
+const Navbar: React.FC<NavbarProps> = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const { darkMode, toggleTheme } = useThemeStore();
@@ -39,6 +41,6 @@ function Navbar(): JSX.Element {
       </div>
     </nav>
   );
-}
+};
 
 export default Navbar;

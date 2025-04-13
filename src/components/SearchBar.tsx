@@ -1,4 +1,4 @@
-import React, { JSX } from 'react';
+import React from 'react';
 
 interface SearchBarProps {
   searchTerm: string;
@@ -6,7 +6,7 @@ interface SearchBarProps {
   darkMode: boolean;
 }
 
-function SearchBar({ searchTerm, setSearchTerm, darkMode }: SearchBarProps): JSX.Element {
+const SearchBar: React.FC<SearchBarProps> = ({ searchTerm, setSearchTerm, darkMode }) => {
   return (
     <div className="mb-6 flex justify-start">
       <input
@@ -20,6 +20,6 @@ function SearchBar({ searchTerm, setSearchTerm, darkMode }: SearchBarProps): JSX
       />
     </div>
   );
-}
+};
 
 export default SearchBar;

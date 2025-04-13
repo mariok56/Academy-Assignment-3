@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthState>()(
         }
         
         // Check if token has expired (current time > expiration time)
-        const now = Math.floor(Date.now() / 1000); // Current time in seconds
+        const now = Math.floor(Date.now() / 1000); 
         if (now > expiresIn) {
           // Token expired, logout
           logout();

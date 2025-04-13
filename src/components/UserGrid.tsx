@@ -1,4 +1,4 @@
-import React, { useState, useEffect, JSX } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserCard from './UserCard';
 import SearchBar from './SearchBar';
@@ -6,7 +6,9 @@ import { User } from '../types/User';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 
-function UserGrid(): JSX.Element {
+interface UserGridProps {}
+
+const UserGrid: React.FC<UserGridProps> = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -16,73 +18,79 @@ function UserGrid(): JSX.Element {
   const { darkMode } = useThemeStore();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      setError('');
-      
-      // Verify token is valid before making request
-      if (!checkAuth()) {
-        navigate('/login');
-        return;
-      }
-      
-      try {
-        const url = searchTerm 
-          ? `/api/users?search=${encodeURIComponent(searchTerm)}` 
-          : '/api/users';
-          
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
-        });
-        
-        if (!response.ok) {
-          // Handle HTTP errors
-          if (response.status === 401) {
-            setError('Unauthorized! Your session has expired. Please login again.');
-            logout();
-            navigate('/login');
-            return;
-          }
-          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        
-        // Transform API users to match our User interface
-        const transformedUsers = data.result.data.users.map((user: any) => ({
-          id: parseInt(user.id),
-          firstName: user.firstName,
-          lastName: user.lastName || '',
-          initials: getInitials(user.firstName, user.lastName),
-          email: user.email,
-          status: user.status.toLowerCase(),
-          dob: user.dateOfBirth
-        }));
-        
-        setUsers(transformedUsers);
-      } catch (err) {
-        if (err instanceof Error) {
-          setError(`Failed to fetch users: ${err.message}`);
-        } else {
-          setError('Failed to fetch users. Please try again.');
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
     
-    fetchUsers();
+    // Verify token is valid before making request
+    if (!checkAuth()) {
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      const url = searchTerm 
+        ? `/api/users?search=${encodeURIComponent(searchTerm)}` 
+        : '/api/users';
+        
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      
+      if (!response.ok) {
+        // Handle HTTP errors
+        if (response.status === 401) {
+          setError('Unauthorized! Your session has expired. Please login again.');
+          logout();
+          navigate('/login');
+          return;
+        }
+        throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      
+      const transformedUsers = data.result.data.users.map((user: any) => ({
+        id: parseInt(user.id),
+        firstName: user.firstName,
+        lastName: user.lastName || '',
+        initials: getInitials(user.firstName, user.lastName),
+        email: user.email,
+        status: user.status.toLowerCase(),
+        dob: user.dateOfBirth
+      }));
+      
+      setUsers(transformedUsers);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(`Failed to fetch users: ${err.message}`);
+      } else {
+        setError('Failed to fetch users. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   }, [searchTerm, accessToken, checkAuth, logout, navigate]);
+  
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
-  // Helper function to get initials
+  
   const getInitials = (firstName: string, lastName?: string): string => {
     const firstInitial = firstName.charAt(0);
     const lastInitial = lastName ? lastName.charAt(0) : '';
     return `${firstInitial}${lastInitial}`.toUpperCase();
   };
+  
+  // Delete user handler
+  const handleDeleteUser = useCallback((userId: number) => {
+   
+    setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+  }, []);
 
   return (
     <div>
@@ -107,12 +115,17 @@ function UserGrid(): JSX.Element {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {users.map(user => (
-            <UserCard key={user.id} user={user} darkMode={darkMode} />
+            <UserCard 
+              key={user.id} 
+              user={user} 
+              darkMode={darkMode} 
+              onDelete={handleDeleteUser}
+            />
           ))}
         </div>
       )}
     </div>
   );
-}
+};
 
 export default UserGrid;

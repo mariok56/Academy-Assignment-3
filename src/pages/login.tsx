@@ -1,9 +1,11 @@
-import React, { JSX, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 
-function Login(): JSX.Element {
+interface LoginProps {}
+
+const Login: React.FC<LoginProps> = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -55,7 +57,7 @@ function Login(): JSX.Element {
         return;
       }
 
-      // Store auth data and redirect
+      
       login(data.result.data.accessToken, data.result.data.expiresIn);
       navigate('/dashboard');
     } catch (err) {
@@ -143,6 +145,6 @@ function Login(): JSX.Element {
       </div>
     </div>
   );
-}
+};
 
 export default Login;
