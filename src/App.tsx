@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './pages/login'
 import AuthLayout from './layouts/AuthLayout'
 import UserGrid from './components/UserGrid'
@@ -8,26 +8,44 @@ import './App.css'
 
 interface AppProps {}
 
+const router = createBrowserRouter(
+  [
+    {
+      path: "/login",
+      element: <Login />
+    },
+    {
+      path: "/",
+      element: <AuthLayout />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="/dashboard" replace />
+        },
+        {
+          path: "dashboard",
+          element: <UserGrid />
+        }
+      ]
+    },
+    {
+      path: "*",
+      element: <Navigate to="/" replace />
+    }
+  ],
+  {
+    future: {
+      v7_relativeSplatPath: true,
+    }
+  }
+);
+
 const App: React.FC<AppProps> = () => {
   const { darkMode } = useThemeStore();
   
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-100 text-gray-900'}`}>
-      <BrowserRouter>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          
-          {/* Protected routes */}
-          <Route path="/" element={<AuthLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<UserGrid />} />
-          </Route>
-          
-          {/* Catch all - redirect to dashboard or login */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </div>
   )
 }
