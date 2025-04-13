@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme{
+    --color-primary: #3251D0;
+    --color-primary-dark: #263D9C;
+}
+
+.info{
+    @apply text-sm text-gray-600 dark:text-gray-300 ;
+}
