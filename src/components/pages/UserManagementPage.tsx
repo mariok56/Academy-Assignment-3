@@ -31,7 +31,7 @@ const UserManagementPage: React.FC = () => {
       
       <UserList />
       
-      {/* This would be replaced with a proper modal component */}
+      
       {showCreateUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
