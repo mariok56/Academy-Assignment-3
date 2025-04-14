@@ -1,21 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
+import { User } from '../../types/User';
+import SearchBar from '../molecules/SearchBar';
 import UserCard from './UserCard';
-import SearchBar from './SearchBar';
-import { User } from '../types/User';
-import { useAuthStore } from '../store/authStore';
-import { useThemeStore } from '../store/themeStore';
+import Spinner from '../atoms/Spinner';
 
-interface UserGridProps {}
+interface UserListProps {}
 
-const UserGrid: React.FC<UserGridProps> = () => {
+const UserList: React.FC<UserListProps> = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   
   const { accessToken, logout, checkAuth } = useAuthStore();
-  const { darkMode } = useThemeStore();
   const navigate = useNavigate();
 
   const fetchUsers = useCallback(async () => {
@@ -52,14 +51,13 @@ const UserGrid: React.FC<UserGridProps> = () => {
       
       const data = await response.json();
       
-      
       const transformedUsers = data.result.data.users.map((user: any) => ({
         id: parseInt(user.id),
         firstName: user.firstName,
         lastName: user.lastName || '',
         initials: getInitials(user.firstName, user.lastName),
         email: user.email,
-        status: user.status.toLowerCase(),
+        status: user.status.toLowerCase() === 'active' ? 'active' : 'locked',
         dob: user.dateOfBirth
       }));
       
@@ -88,44 +86,62 @@ const UserGrid: React.FC<UserGridProps> = () => {
   
   // Delete user handler
   const handleDeleteUser = useCallback((userId: number) => {
-   
     setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
   }, []);
 
-  return (
-    <div>
-      <SearchBar 
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        darkMode={darkMode}
-      />
-      
-      {isLoading ? (
+  // Render the content based on loading, error, and users state
+  const renderContent = () => {
+    if (isLoading) {
+      return (
         <div className="flex justify-center items-center py-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <Spinner size="lg" />
         </div>
-      ) : error ? (
-        <div className={`p-4 rounded-md ${darkMode ? 'bg-red-900 text-red-100' : 'bg-red-100 text-red-700'}`}>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="p-4 rounded-md bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100">
           {error}
         </div>
-      ) : users.length === 0 ? (
-        <div className={`p-4 rounded-md ${darkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+      );
+    }
+
+    if (users.length === 0) {
+      return (
+        <div className="p-4 rounded-md bg-gray-100 dark:bg-gray-800">
           No users found matching your search criteria.
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {users.map(user => (
-            <UserCard 
-              key={user.id} 
-              user={user} 
-              darkMode={darkMode} 
-              onDelete={handleDeleteUser}
-            />
-          ))}
-        </div>
-      )}
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {users.map(user => (
+          <UserCard 
+            key={user.id} 
+            user={user} 
+            onDelete={handleDeleteUser}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      {/* SearchBar is always rendered at the top, regardless of other conditions */}
+      <div className="mb-6">
+        <SearchBar 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
+      </div>
+      
+      {/* Content area changes based on state */}
+      {renderContent()}
     </div>
   );
 };
 
-export default UserGrid;
+export default UserList;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
-import { useThemeStore } from '../store/themeStore';
+import { useAuthStore } from '../../store/authStore';
+import { useThemeStore } from '../../store/themeStore';
+import FormGroup from '../molecules/FormGroup';
+import Button from '../atoms/Button';
 
-interface LoginProps {}
-
-const Login: React.FC<LoginProps> = () => {
+const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -57,7 +57,6 @@ const Login: React.FC<LoginProps> = () => {
         return;
       }
 
-      
       login(data.result.data.accessToken, data.result.data.expiresIn);
       navigate('/dashboard');
     } catch (err) {
@@ -65,6 +64,14 @@ const Login: React.FC<LoginProps> = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
   };
 
   return (
@@ -83,23 +90,15 @@ const Login: React.FC<LoginProps> = () => {
         )}
         
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className={`block mb-2 text-sm font-medium ${
-              darkMode ? 'text-gray-200' : 'text-gray-700'
-            }`}>
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
-                darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-              }`}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="academy@gmail.com"
-            />
-          </div>
+          <FormGroup
+            label="Email"
+            id="email"
+            type="email"
+            value={email}
+            onChange={handleEmailChange}
+            placeholder="academy@gmail.com"
+            required
+          />
           
           <div className="mb-6">
             <label htmlFor="password" className={`block mb-2 text-sm font-medium ${
@@ -115,8 +114,9 @@ const Login: React.FC<LoginProps> = () => {
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
                 }`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 placeholder="academy123"
+                required
               />
               <button
                 type="button"
@@ -132,19 +132,18 @@ const Login: React.FC<LoginProps> = () => {
             </div>
           </div>
           
-          <button
+          <Button
             type="submit"
+            variant="primary"
             disabled={isLoading}
-            className={`w-full bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition ${
-              isLoading ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
+            fullWidth
           >
             {isLoading ? 'Logging in...' : 'Login'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;

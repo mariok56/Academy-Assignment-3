@@ -1,42 +1,46 @@
 import React from 'react'
-import { Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom'
-import Login from './pages/login'
-import AuthLayout from './layouts/AuthLayout'
-import UserGrid from './components/UserGrid'
+import { Navigate, createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
+import LoginPage from './components/pages/Login'
+import DashboardPage from './components/pages/DashboardPage'
+import UserManagementPage from './components/pages/UserManagementPage'
+import AuthTemplate from './components/templates/AuthTemplate'
 import { useThemeStore } from './store/themeStore'
 import './App.css'
 
-interface AppProps {}
+const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <LoginPage />
+  },
+  {
+    path: "/",
+    element: (
+      <AuthTemplate>
+        <Outlet />
+      </AuthTemplate>
+    ),
+    children: [
+      {
+        index: true,
+        element: <Navigate to="/dashboard" replace />
+      },
+      {
+        path: "dashboard",
+        element: <DashboardPage />
+      },
+      {
+        path: "users",
+        element: <UserManagementPage />
+      }
+    ]
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />
+  }
+]);
 
-const router = createBrowserRouter(
-  [
-    {
-      path: "/login",
-      element: <Login />
-    },
-    {
-      path: "/",
-      element: <AuthLayout />,
-      children: [
-        {
-          index: true,
-          element: <Navigate to="/dashboard" replace />
-        },
-        {
-          path: "dashboard",
-          element: <UserGrid />
-        }
-      ]
-    },
-    {
-      path: "*",
-      element: <Navigate to="/" replace />
-    }
-  ],
-  
-);
-
-const App: React.FC<AppProps> = () => {
+const App: React.FC = () => {
   const { darkMode } = useThemeStore();
   
   return (
